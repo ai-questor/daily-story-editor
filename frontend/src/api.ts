@@ -14,10 +14,16 @@ export interface GenerateResult {
 }
 
 export async function generateText(payload: GeneratePayload): Promise<GenerateResult> {
-  const res = await fetch("http://localhost:8000/generate", {
+  const res = await fetch("http://localhost:8080/api/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
-  return res.json();
+  const data = await res.json();
+
+  return {
+    captions: data.captions ?? [],
+    one_liner: data.one_liner ?? "",
+    hashtags: data.hashtags ?? []
+  };
 }
