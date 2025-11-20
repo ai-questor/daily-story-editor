@@ -1,0 +1,22 @@
+/* 프로젝트 전역 커스텀 스타일을 위한 공간 */
+
+/* 기본 폰트 설정 */
+:root {
+  font-family: system-ui, -apple-system, Helvetica, Arial, sans-serif;
+}
+
+/* body 기본 여백 제거 */
+body {
+  margin: 0;
+  background-color: #f8f9fa; /* Bootstrap 기본 배경색과 어울리게 */
+}
+
+/* 커스텀 버튼 색상 */
+.btn-primary {
+  background-color: #646cff;
+  border-color: #646cff;
+}
+.btn-primary:hover {
+  background-color: #535bf2;
+  border-color: #535bf2;
+}
