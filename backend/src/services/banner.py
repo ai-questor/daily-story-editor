@@ -18,7 +18,7 @@ def generate_banner(file_bytes: bytes, menu: str, context: str, tone: str,
 
     # 3) 인페인팅으로 배경 생성 (상황+톤을 프롬프트에 반영)
     prompt = f"{context}, {tone} 분위기, 광고 배경"
-    bg = generate_inpainted_background(product=product_rgba, mask=mask, prompt=prompt, size="512x512", use_sdxl=True)
+    bg = generate_inpainted_background(product=product_rgba, mask=mask, prompt=prompt, size="512x512", use_sdxl=False)
 
     # 4) 합성 (제품을 배경 위에 다시 올림)
     composed = composite_product_on_bg(product_rgba, bg)
