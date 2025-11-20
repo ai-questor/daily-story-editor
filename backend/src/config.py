@@ -9,7 +9,7 @@ SD_MODEL = os.getenv("SD_MODEL", "stabilityai/stable-diffusion-2-1")
 SDXL_MODEL = os.getenv("SDXL_MODEL", "stabilityai/stable-diffusion-xl-base-1.0")
 
 # 인페인팅 모델 (배경 지우고 다시 칠하기용)
-SD_INPAINT_MODEL = os.getenv("SD_INPAINT_MODEL", "stabilityai/stable-diffusion-2-inpainting")
+SD_INPAINT_MODEL = os.getenv("SD_INPAINT_MODEL", "alwold/stable-diffusion-2-inpainting") # stabilityai/stable-diffusion-2-inpainting
 SDXL_INPAINT_MODEL = os.getenv("SDXL_INPAINT_MODEL", "diffusers/stable-diffusion-xl-1.0-inpainting-0.1")  # XL 인페인팅 버전이 따로 있으면 교체 가능
 
 # 업스케일 배율 (2, 3, 4)
