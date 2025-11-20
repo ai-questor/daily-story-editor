@@ -10,5 +10,5 @@ npm install
 
 ## 실행하기
 ```
-npm run dev
+npm run dev -- --host 0.0.0.0
 ```

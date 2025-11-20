@@ -14,7 +14,7 @@ uv sync
 ### 서버 실행
 ```bash
 cd src
-uv run uvicorn main:app --reload --port 8080
+uv run uvicorn main:app --reload --host 0.0.0.0 --port 8080
 ```
 
 ### API 문서 확인
