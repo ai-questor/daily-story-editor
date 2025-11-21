@@ -63,6 +63,9 @@ uv pip install opencv-python pillow torch torchvision
     - sam_vit_b_01ec64.pth (ViT-B, 더 가볍고 빠름)
     - sam_vit_l_0b3195.pth (ViT-L, 중간 크기)
 
+# 구글 번역
+uv pip install deep-translator
+
 uv sync
 ```
 

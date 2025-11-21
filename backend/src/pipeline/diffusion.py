@@ -2,6 +2,7 @@ from diffusers import StableDiffusionInpaintPipeline
 import torch
 from PIL import Image
 from config import SD_INPAINT_MODEL, SDXL_INPAINT_MODEL
+import os
 
 _inpaint_pipe = None
 _sdxl_inpaint_pipe = None
@@ -39,4 +40,10 @@ def generate_inpainted_background(product: Image.Image, mask: Image.Image, promp
         num_inference_steps=steps
     ).images[0]
 
-    return result.convert("RGB")
+    result_rgb = result.convert("RGB")
+
+    # 결과 저장
+    os.makedirs("temp", exist_ok=True)
+    result_rgb.save("temp/generated.png")
+
+    return result_rgb
