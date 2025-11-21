@@ -56,6 +56,12 @@ uv pip uninstall basicsr -y
 uv pip install git+https://github.com/xinntao/BasicSR.git
 uv pip show basicsr
 
+# SAM 설치
+uv pip install git+https://github.com/facebookresearch/segment-anything.git
+uv pip install opencv-python pillow torch torchvision
+  - download checkpoint: wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth -P weights
+    - sam_vit_b_01ec64.pth (ViT-B, 더 가볍고 빠름)
+    - sam_vit_l_0b3195.pth (ViT-L, 중간 크기)
 
 uv sync
 ```

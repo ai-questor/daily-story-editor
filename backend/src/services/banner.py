@@ -1,6 +1,7 @@
 import io, base64
 from PIL import Image
 from rembg import remove
+from pipeline.background_removal import remove_background
 from pipeline.diffusion import generate_inpainted_background
 from pipeline.upscaler import upscale_image
 from pipeline.compositor import add_text_overlay
@@ -10,7 +11,7 @@ def generate_banner(file_bytes: bytes, menu: str, context: str, tone: str,
                     channel: str, required_words: str, banned_words: str,
                     text_overlay: str) -> str:
     print('1) 배경 제거 → 제품만 남기기')
-    product_rgba = Image.open(io.BytesIO(remove(file_bytes))).convert("RGBA")
+    product_rgba = remove_background(file_bytes, method='sam')
 
     print('2) 비율 유지 + 패딩')
     product_padded = resize_with_padding(product_rgba, (512,512))
