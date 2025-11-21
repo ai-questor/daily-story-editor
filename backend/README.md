@@ -50,12 +50,6 @@ uv add diffusers transformers accelerate safetensors torch
 # 업스케일러 (Real-ESRGAN)
 uv add realesrgan
 
-# 업스케일러 (SwinIR)
-uv add basicsr safetensors requests pillow numpy
-uv pip uninstall basicsr -y
-uv pip install git+https://github.com/xinntao/BasicSR.git
-uv pip show basicsr
-
 # SAM 설치
 uv pip install git+https://github.com/facebookresearch/segment-anything.git
 uv pip install opencv-python pillow torch torchvision
@@ -64,7 +58,7 @@ uv pip install opencv-python pillow torch torchvision
     - sam_vit_l_0b3195.pth (ViT-L, 중간 크기)
 
 # 구글 번역
-uv pip install deep-translator
+uv add deep-translator
 
 uv sync
 ```
