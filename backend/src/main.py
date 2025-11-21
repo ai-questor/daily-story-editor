@@ -34,6 +34,7 @@ async def generate_banner_api(
     text_overlay: str = Form(None),
 ):
     try:
+        print('Generate banner..')
         file_bytes = await file.read()
         b64 = generate_banner(file_bytes, menu, context, tone, channel,
                               required_words, banned_words, text_overlay)

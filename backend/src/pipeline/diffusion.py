@@ -57,7 +57,7 @@ def parse_size(s: str) -> Tuple[int,int]:
     w, h = s.split("x")
     return int(w), int(h)
 
-def generate_background(prompt: str, size: str = "768x768", use_sdxl: bool = True, model_override: str | None = None) -> Image.Image:
+def generate_background(prompt: str, size: str = "512X512", use_sdxl: bool = False, model_override: str | None = None) -> Image.Image:
     w, h = parse_size(size)
     if use_sdxl:
         pipe = _init_sdxl(model_override or SDXL_MODEL)
@@ -66,11 +66,25 @@ def generate_background(prompt: str, size: str = "768x768", use_sdxl: bool = Tru
     image = pipe(prompt, height=h, width=w).images[0]
     return image.convert("RGB")
 
-def generate_inpainted_background(product: Image.Image, mask: Image.Image, prompt: str, size: str = "768x768", use_sdxl: bool = False) -> Image.Image:
+def generate_inpainted_background(product: Image.Image, mask: Image.Image, prompt: str, size: str = "512X512", use_sdxl: bool = False) -> Image.Image:
     w, h = parse_size(size)
+
+    # ✅ 이미지와 마스크 크기 맞추기
+    product = product.resize((w, h)).convert("RGB")
+    mask = mask.resize((w, h)).convert("RGB")
+
     if use_sdxl:
         pipe = _init_sdxl_inpaint()
     else:
         pipe = _init_inpaint()
-    result = pipe(prompt=prompt, image=product, mask_image=mask, height=h, width=w).images[0]
+
+    result = pipe(
+        prompt=prompt,
+        image=product,
+        mask_image=mask,
+        height=h,
+        width=w,
+        num_inference_steps=30
+    ).images[0]
+
     return result.convert("RGB")

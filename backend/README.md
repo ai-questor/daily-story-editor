@@ -1,5 +1,32 @@
 # daily-story-editor
 
+### Nvidia GPU관련 환경설정
+```
+sudo apt-get --purge remove '*nvidia*'
+sudo apt-get autoremove -y
+sudo apt-get clean
+
+sudo apt-get update
+sudo apt-get install nvidia-driver
+sudo reboot
+
+uname -r        # 커널이 여전히 generic인지 확인
+nvidia-smi      # GPU 상태 확인
+lsmod | grep nvidia
+
+sudo nano /etc/apt/sources.list
+deb http://deb.debian.org/debian bookworm main contrib non-free non-free-firmware
+deb http://deb.debian.org/debian-security bookworm-security main contrib non-free non-free-firmware
+deb http://deb.debian.org/debian bookworm-updates main contrib non-free non-free-firmware
+
+sudo apt-get update
+sudo apt-get install nvidia-driver firmware-misc-nonfree
+sudo reboot
+
+nvcc --version
+nvidia-smi
+```
+
 ### 환경설정
 ```
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -35,6 +62,7 @@ uv run uvicorn main:app --reload --host 0.0.0.0 --port 8080
 ### API 문서 확인
 - Swagger UI: http://127.0.0.1:8080/docs
 - ReDoc: http://127.0.0.1:8080/redoc
+
 
 ### 샘플 요청
 curl -X POST "http://localhost:8080/api/generate-banner" \
