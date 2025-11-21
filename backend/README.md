@@ -50,6 +50,13 @@ uv add diffusers transformers accelerate safetensors torch
 # 업스케일러 (Real-ESRGAN)
 uv add realesrgan
 
+# 업스케일러 (SwinIR)
+uv add basicsr safetensors requests pillow numpy
+uv pip uninstall basicsr -y
+uv pip install git+https://github.com/xinntao/BasicSR.git
+uv pip show basicsr
+
+
 uv sync
 ```
 
