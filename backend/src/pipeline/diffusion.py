@@ -1,43 +1,17 @@
-from diffusers import (
-    StableDiffusionPipeline,
-    StableDiffusionXLPipeline,
-    StableDiffusionInpaintPipeline,
-)
+from diffusers import StableDiffusionInpaintPipeline
 import torch
 from PIL import Image
-from typing import Tuple
-from config import SD_MODEL, SDXL_MODEL, SD_INPAINT_MODEL, SDXL_INPAINT_MODEL
+from config import SD_INPAINT_MODEL, SDXL_INPAINT_MODEL
 
-_sd_pipe = None
-_sdxl_pipe = None
 _inpaint_pipe = None
 _sdxl_inpaint_pipe = None
-
-def _init_sd(model: str):
-    global _sd_pipe
-    if _sd_pipe is None:
-        _sd_pipe = StableDiffusionPipeline.from_pretrained(
-            model, torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
-        )
-        if torch.cuda.is_available():
-            _sd_pipe = _sd_pipe.to("cuda")
-    return _sd_pipe
-
-def _init_sdxl(model: str):
-    global _sdxl_pipe
-    if _sdxl_pipe is None:
-        _sdxl_pipe = StableDiffusionXLPipeline.from_pretrained(
-            model, torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
-        )
-        if torch.cuda.is_available():
-            _sdxl_pipe = _sdxl_pipe.to("cuda")
-    return _sdxl_pipe
 
 def _init_inpaint(model: str = SD_INPAINT_MODEL):
     global _inpaint_pipe
     if _inpaint_pipe is None:
         _inpaint_pipe = StableDiffusionInpaintPipeline.from_pretrained(
-            model, torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
+            model,
+            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
         )
         if torch.cuda.is_available():
             _inpaint_pipe = _inpaint_pipe.to("cuda")
@@ -47,44 +21,22 @@ def _init_sdxl_inpaint(model: str = SDXL_INPAINT_MODEL):
     global _sdxl_inpaint_pipe
     if _sdxl_inpaint_pipe is None:
         _sdxl_inpaint_pipe = StableDiffusionInpaintPipeline.from_pretrained(
-            model, torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
+            model,
+            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32
         )
         if torch.cuda.is_available():
             _sdxl_inpaint_pipe = _sdxl_inpaint_pipe.to("cuda")
     return _sdxl_inpaint_pipe
 
-def parse_size(s: str) -> Tuple[int,int]:
-    w, h = s.split("x")
-    return int(w), int(h)
-
-def generate_background(prompt: str, size: str = "512X512", use_sdxl: bool = False, model_override: str | None = None) -> Image.Image:
-    w, h = parse_size(size)
-    if use_sdxl:
-        pipe = _init_sdxl(model_override or SDXL_MODEL)
-    else:
-        pipe = _init_sd(model_override or SD_MODEL)
-    image = pipe(prompt, height=h, width=w).images[0]
-    return image.convert("RGB")
-
-def generate_inpainted_background(product: Image.Image, mask: Image.Image, prompt: str, size: str = "512X512", use_sdxl: bool = False) -> Image.Image:
-    w, h = parse_size(size)
-
-    # ✅ 이미지와 마스크 크기 맞추기
-    product = product.resize((w, h)).convert("RGB")
-    mask = mask.resize((w, h)).convert("RGB")
-
-    if use_sdxl:
-        pipe = _init_sdxl_inpaint()
-    else:
-        pipe = _init_inpaint()
+def generate_inpainted_background(product: Image.Image, mask: Image.Image, prompt: str,
+                                  use_sdxl: bool = False, steps: int = 30) -> Image.Image:
+    pipe = _init_sdxl_inpaint() if use_sdxl else _init_inpaint()
 
     result = pipe(
         prompt=prompt,
-        image=product,
-        mask_image=mask,
-        height=h,
-        width=w,
-        num_inference_steps=30
+        image=product,        # prepare_inpainting_inputs에서 크기/모드 맞춤
+        mask_image=mask,      # L 모드 마스크
+        num_inference_steps=steps
     ).images[0]
 
     return result.convert("RGB")

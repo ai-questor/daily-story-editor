@@ -3,40 +3,31 @@ from PIL import Image
 from rembg import remove
 from pipeline.diffusion import generate_inpainted_background
 from pipeline.upscaler import upscale_image
-from pipeline.compositor import composite_product_on_bg, add_text_overlay
+from pipeline.compositor import add_text_overlay
+from pipeline.utils import prepare_inpainting_inputs  # 유틸리티 함수
 
 def generate_banner(file_bytes: bytes, menu: str, context: str, tone: str,
                     channel: str, required_words: str, banned_words: str,
                     text_overlay: str) -> str:
-    # 1) 배경 제거 → 제품만 남기기
     print('1) 배경 제거 → 제품만 남기기')
     product_rgba = Image.open(io.BytesIO(remove(file_bytes))).convert("RGBA")
 
-    # 2) 마스크 생성 (제품은 검정, 배경은 흰색)
-    print('2) 마스크 생성 (제품은 검정, 배경은 흰색)')
-    mask = Image.new("L", product_rgba.size, 255)  # 기본은 흰색(수정 영역)
-    # rembg 결과의 알파 채널을 이용해 제품 부분만 검정으로 표시
-    mask.paste(0, mask=product_rgba.split()[-1])
+    print('2) 제품 이미지 + 마스크 준비')
+    product_resized, mask_resized = prepare_inpainting_inputs(product_rgba, target_size=(512, 512))
 
-    # 3) 인페인팅으로 배경 생성 (상황+톤을 프롬프트에 반영)
-    print('3) 인페인팅으로 배경 생성 (상황+톤을 프롬프트에 반영)')
+    print('3) 인페인팅으로 배경 생성')
     prompt = f"{context}, {tone} 분위기, 광고 배경"
-    bg = generate_inpainted_background(product=product_rgba, mask=mask, prompt=prompt, size="512x512", use_sdxl=False)
+    bg = generate_inpainted_background(product_resized, mask_resized, prompt, use_sdxl=False)
 
-    # 4) 합성 (제품을 배경 위에 다시 올림)
-    print('4) 합성 (제품을 배경 위에 다시 올림)')
-    composed = composite_product_on_bg(product_rgba, bg)
+    print('4) 텍스트 삽입')
+    composed = add_text_overlay(bg, text_overlay or f"{menu} - 오늘의 추천 메뉴", tone)
 
-    # 5) 텍스트 삽입
-    print('5) 텍스트 삽입')
-    composed = add_text_overlay(composed, text_overlay or f"{menu} - 오늘의 추천 메뉴", tone)
+    print('5) 업스케일')
+    # 채널별로 업스케일 배율 조정 가능 (예: 피드=2, 스토리=3)
+    scale = 2 if channel == "피드" else 3
+    composed_up = upscale_image(composed, scale=scale)
 
-    # 6) 업스케일
-    print('6) 업스케일')
-    composed_up = upscale_image(composed, scale=2)
-
-    # 7) 결과 base64 인코딩
+    print('6) 결과 base64 인코딩')
     buf = io.BytesIO()
     composed_up.save(buf, format="PNG")
-    b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
-    return b64
+    return base64.b64encode(buf.getvalue()).decode("utf-8")

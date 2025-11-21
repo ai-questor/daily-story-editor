@@ -49,7 +49,7 @@ function App() {
         formData.append("banned_words", bannedWords);
         formData.append("text_overlay", `${menu} - 오늘의 추천 메뉴`);
 
-        const res = await fetch("http://35.221.232.181:8080/api/generate-banner", {
+        const res = await fetch("http://35.221.153.118:8080/api/generate-banner", {
           method: "POST",
           body: formData,
         });
