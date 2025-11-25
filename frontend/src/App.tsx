@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { generateText } from "./api";
+import { generateText, generateBanner, uploadInstagram } from "./api";
 import type { GenerateResult } from "./api";
 
 function App() {
@@ -17,8 +17,6 @@ function App() {
   const [bannerError, setBannerError] = useState("");
 
   const [productImage, setProductImage] = useState<File | null>(null);
-
-  // 새로 추가: 선택된 캡션 상태
   const [selectedCaption, setSelectedCaption] = useState<string>("");
 
   const handleGenerateAll = async () => {
@@ -50,16 +48,7 @@ function App() {
         formData.append("banned_words", bannedWords);
         formData.append("text_overlay", `${menu} - 오늘의 추천 메뉴`);
 
-        const res = await fetch("http://localhost:8081/api/generate-banner", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!res.ok) {
-          throw new Error(`배너 생성 실패: ${res.status}`);
-        }
-
-        const data = await res.json();
+        const data = await generateBanner(formData);
         setBannerImage(`data:image/png;base64,${data.image_base64}`);
       }
     } catch (err) {
@@ -70,7 +59,6 @@ function App() {
     }
   };
 
-  // base64 → Blob 변환 함수
   const base64ToBlob = (base64: string, mimeType = "image/png") => {
     const byteCharacters = atob(base64);
     const byteNumbers = new Array(byteCharacters.length);
@@ -90,8 +78,7 @@ function App() {
     try {
       const captionText = `${selectedCaption}\n\n${result.one_liner}\n\n${result.hashtags.map(tag => `#${tag}`).join(" ")}`;
 
-      // bannerImage(base64) → Blob → File 변환
-      const base64Data = bannerImage.split(",")[1]; // "data:image/png;base64,..." 제거
+      const base64Data = bannerImage.split(",")[1];
       const blob = base64ToBlob(base64Data, "image/png");
       const file = new File([blob], "generated-banner.png", { type: "image/png" });
 
@@ -99,16 +86,7 @@ function App() {
       formData.append("caption", captionText);
       formData.append("file", file);
 
-      const res = await fetch("http://localhost:8081/api/upload-instagram", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        throw new Error(`Instagram 업로드 실패: ${res.status}`);
-      }
-
-      const data = await res.json();
+      await uploadInstagram(formData);
       alert("Instagram 업로드 성공!");
     } catch (err) {
       console.error(err);
