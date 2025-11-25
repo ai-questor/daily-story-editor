@@ -4,7 +4,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from models import GeneratePayload, GenerateResult
 from config import OPENAI_API_KEY
 
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7, api_key=OPENAI_API_KEY)
+llm = ChatOpenAI(model="gpt-4o-nano", temperature=0.7, api_key=OPENAI_API_KEY)
 
 def generate_text(payload: GeneratePayload) -> GenerateResult:
     prompt = ChatPromptTemplate.from_messages([

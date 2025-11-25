@@ -1,19 +1,5 @@
 // api.tsx
-
-export interface GeneratePayload {
-  menu: string;
-  context: string;
-  tone: string;
-  channel: string;
-  required_words?: string[];
-  banned_words?: string[];
-}
-
-export interface GenerateResult {
-  captions: string[];
-  one_liner: string;
-  hashtags: string[];
-}
+import type { GeneratePayload, GenerateResult } from "./types";
 
 // 텍스트 생성 API
 export async function generateText(payload: GeneratePayload): Promise<GenerateResult> {
