@@ -101,3 +101,9 @@ def generate_banner(file_bytes: bytes, menu: str, context: str, tone: str,
     buf = io.BytesIO()
     composed_up.save(buf, format="PNG")
     return base64.b64encode(buf.getvalue()).decode("utf-8")
+
+def generate_banner_mock(file_bytes: bytes, menu: str, context: str, tone: str,
+                    channel: str, required_words: str, banned_words: str,
+                    text_overlay: str) -> str:
+    with open("temp/generated.png", "rb") as f:
+        return base64.b64encode(f.read()).decode("utf-8")
