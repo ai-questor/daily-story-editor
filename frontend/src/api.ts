@@ -14,7 +14,7 @@ export interface GenerateResult {
 }
 
 export async function generateText(payload: GeneratePayload): Promise<GenerateResult> {
-  const res = await fetch("http://localhost:8080/api/generate", {
+  const res = await fetch("http://localhost:8081/api/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)

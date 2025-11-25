@@ -18,6 +18,9 @@ function App() {
 
   const [productImage, setProductImage] = useState<File | null>(null);
 
+  // 새로 추가: 선택된 캡션 상태
+  const [selectedCaption, setSelectedCaption] = useState<string>("");
+
   const handleGenerateAll = async () => {
     setLoading(true);
     setError("");
@@ -26,7 +29,6 @@ function App() {
     setBannerImage(null);
 
     try {
-      // 1단계: 문구 생성 (JSON POST)
       const textData = await generateText({
         menu,
         context,
@@ -37,7 +39,6 @@ function App() {
       });
       setResult(textData);
 
-      // 2단계: 배너 이미지 생성 (multipart/form-data POST)
       if (productImage) {
         const formData = new FormData();
         formData.append("file", productImage);
@@ -49,7 +50,7 @@ function App() {
         formData.append("banned_words", bannedWords);
         formData.append("text_overlay", `${menu} - 오늘의 추천 메뉴`);
 
-        const res = await fetch("http://localhost:8080/api/generate-banner", {
+        const res = await fetch("http://localhost:8081/api/generate-banner", {
           method: "POST",
           body: formData,
         });
@@ -66,6 +67,52 @@ function App() {
       setError("컨텐츠 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // base64 → Blob 변환 함수
+  const base64ToBlob = (base64: string, mimeType = "image/png") => {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mimeType });
+  };
+
+  const handleInstagramUpload = async () => {
+    if (!bannerImage || !result || !selectedCaption) {
+      setError("업로드할 배너 이미지와 캡션을 선택해주세요.");
+      return;
+    }
+
+    try {
+      const captionText = `${selectedCaption}\n\n${result.one_liner}\n\n${result.hashtags.map(tag => `#${tag}`).join(" ")}`;
+
+      // bannerImage(base64) → Blob → File 변환
+      const base64Data = bannerImage.split(",")[1]; // "data:image/png;base64,..." 제거
+      const blob = base64ToBlob(base64Data, "image/png");
+      const file = new File([blob], "generated-banner.png", { type: "image/png" });
+
+      const formData = new FormData();
+      formData.append("caption", captionText);
+      formData.append("file", file);
+
+      const res = await fetch("http://localhost:8081/api/upload-instagram", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error(`Instagram 업로드 실패: ${res.status}`);
+      }
+
+      const data = await res.json();
+      alert("Instagram 업로드 성공!");
+    } catch (err) {
+      console.error(err);
+      setError("Instagram 업로드 중 오류가 발생했습니다.");
     }
   };
 
@@ -170,7 +217,6 @@ function App() {
           </div>
         )}
 
-        {/* 버튼 하나 */}
         <button
           className="btn btn-primary w-100"
           onClick={handleGenerateAll}
@@ -185,7 +231,17 @@ function App() {
         <div className="card mt-4 p-4 shadow-sm">
           <h2 className="h5 mb-3">SNS 캡션</h2>
           {result.captions.map((c, i) => (
-            <p key={i} className="alert alert-secondary">{c}</p>
+            <div key={i} className="form-check mb-2">
+              <input
+                type="radio"
+                className="form-check-input"
+                name="captionSelect"
+                value={c}
+                checked={selectedCaption === c}
+                onChange={() => setSelectedCaption(c)}
+              />
+              <label className="form-check-label">{c}</label>
+            </div>
           ))}
 
           <h2 className="h5 mt-3 mb-2">한 줄 광고</h2>
@@ -193,6 +249,16 @@ function App() {
 
           <h2 className="h5 mt-3 mb-2">해시태그</h2>
           <p className="text-primary">{result.hashtags.map(tag => `#${tag}`).join(" ")}</p>
+
+          {bannerImage && (
+            <button
+              className="btn btn-success mt-3"
+              onClick={handleInstagramUpload}
+              disabled={!selectedCaption}
+            >
+              인스타그램 업로드
+            </button>
+          )}
         </div>
       )}
 
