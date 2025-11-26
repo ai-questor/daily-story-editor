@@ -9,6 +9,7 @@ dependencies = [
     "dotenv>=0.9.9",
     "fastapi>=0.121.3",
     "google-cloud-storage>=3.6.0",
+    "google-genai>=1.52.0",
     "huggingface-hub>=0.36.0",
     "langchain>=1.0.8",
     "langchain-openai>=1.0.3",
