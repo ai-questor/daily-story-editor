@@ -74,6 +74,10 @@ uv pip uninstall diffusers
 uv pip install git+https://github.com/huggingface/diffusers.git
 uv pip install xformers
 
+# 나노 바나나 Pro 설치
+uv add google-genai
+
+
 uv sync
 ```
 
