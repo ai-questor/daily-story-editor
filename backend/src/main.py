@@ -8,8 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from models import GeneratePayload, GenerateResult, BannerResult
 from services.storage import upload_to_gcs_and_instagram
 from services.text import generate_text
-# from services.banner import generate_banner
-from services.banner import generate_banner_mock as generate_banner
+from services.banner import generate_banner
+#from services.banner import generate_banner_mock as generate_banner
 
 load_dotenv()
 app = FastAPI()
@@ -58,6 +58,7 @@ async def generate_banner_api(
                               required_words, banned_words, text_overlay)
         return BannerResult(image_base64=b64)
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/upload-instagram")

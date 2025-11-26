@@ -65,4 +65,5 @@ def upload_to_gcs_and_instagram(file_bytes: bytes, filename: str, caption: str):
         return {"success": True, "publish_id": publish_data["id"]}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
