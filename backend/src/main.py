@@ -58,6 +58,7 @@ async def generate_banner_api(
                               required_words, banned_words, text_overlay)
         return BannerResult(image_base64=b64)
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/upload-instagram")

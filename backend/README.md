@@ -63,13 +63,25 @@ uv add deep-translator
 # 구글 스토리지
 uv add google-cloud-storage
 
+# Qwen Image 설치
+git clone https://huggingface.co/Qwen/Qwen-Image-Edit-2509
+sudo apt-get install git-lfs
+git lfs install
+cd Qwen-Image-Edit-2509
+git lfs pull
+cd ..
+uv pip uninstall diffusers
+uv pip install git+https://github.com/huggingface/diffusers.git
+uv pip install xformers
+
 uv sync
 ```
 
 ### 서버 실행
 ```bash
 cd src
-uv run uvicorn main:app --reload --host 0.0.0.0 --port 8080
+PYTHONPATH=./src uv run uvicorn main:app --reload --host 0.0.0.0 --port 8080
+
 ```
 
 ### 로컬 테스트용 
