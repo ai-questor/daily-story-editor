@@ -42,20 +42,30 @@ async def generate(payload: GeneratePayload):
 
 @app.post("/api/generate-banner", response_model=BannerResult)
 async def generate_banner_api(
-    file: UploadFile = File(...),
-    menu: str = Form(...),
-    context: str = Form(...),
-    tone: str = Form(...),
-    channel: str = Form(...),
-    required_words: str = Form(""),
-    banned_words: str = Form(""),
-    text_overlay: str = Form(None),
+    file_product: UploadFile = File(...),
+    file_person: UploadFile | None = File(None),
+    file_background: UploadFile | None = File(None),
+    background_prompt: str = Form(""),
+    text_overlay: str = Form(""),
+    overlay_position: str = Form("auto"),
+    overlay_description: str = Form(""),
 ):
     try:
-        print('Generate banner..')
-        file_bytes = await file.read()
-        b64 = generate_banner(file_bytes, menu, context, tone, channel,
-                              required_words, banned_words, text_overlay)
+        print("Generate banner..")
+
+        product_bytes = await file_product.read()
+        person_bytes = await file_person.read() if file_person else None
+        background_bytes = await file_background.read() if file_background else None
+
+        b64 = generate_banner(
+            product_bytes=product_bytes,
+            person_bytes=person_bytes,
+            background_bytes=background_bytes,
+            background_prompt=background_prompt,
+            text_overlay=text_overlay,
+            overlay_position=overlay_position,
+            overlay_description=overlay_description,
+        )
         return BannerResult(image_base64=b64)
     except Exception as e:
         print(e)
