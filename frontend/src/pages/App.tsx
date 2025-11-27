@@ -11,6 +11,9 @@ type BannerForm = {
   person: File | null;
   background: File | null;
   prompt: string;
+  overlayText: string;
+  overlayPosition: string;       // "auto" 포함
+  overlayDescription: string;
 };
 
 export default function App() {
@@ -32,6 +35,9 @@ export default function App() {
     person: null,
     background: null,
     prompt: "",
+    overlayText: "",
+    overlayPosition: "auto",
+    overlayDescription: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -75,14 +81,13 @@ export default function App() {
       if (bannerForm.person) formData.append("file_person", bannerForm.person);
       if (bannerForm.background) formData.append("file_background", bannerForm.background);
 
-      formData.append("menu", menu);
-      formData.append("context", context);
-      formData.append("tone", tone);
-      formData.append("channel", channel);
-      formData.append("required_words", requiredWords);
-      formData.append("banned_words", bannedWords);
-      formData.append("text_overlay", `${menu} - 오늘의 추천 메뉴`);
+      // ✅ 이미지 생성에 필요한 값만 전달
       formData.append("background_prompt", bannerForm.prompt);
+      formData.append("text_overlay", bannerForm.overlayText);
+      formData.append("overlay_position", bannerForm.overlayPosition);
+      if (bannerForm.overlayDescription) {
+        formData.append("overlay_description", bannerForm.overlayDescription);
+      }
 
       const data = await generateBanner(formData);
       setBannerImage(`data:image/png;base64,${data.image_base64}`);

@@ -6,6 +6,9 @@ type BannerForm = {
   person: File | null;
   background: File | null;
   prompt: string;
+  overlayText: string;
+  overlayPosition: string;
+  overlayDescription: string;
 };
 
 type Props = {
@@ -58,6 +61,50 @@ export default function Step2Banner({ result, form, setForm, loading, onSubmit }
           placeholder="예: 한옥마을, 전통시장, 웃는 손님과 함께..."
           value={form.prompt}
           onChange={e => setForm({ ...form, prompt: e.target.value })}
+        />
+      </div>
+
+      {/* 오버레이 텍스트 */}
+      <div className="mb-3">
+        <label className="form-label">배너에 들어갈 문구</label>
+        <input
+          type="text"
+          className="form-control"
+          placeholder="예: 크리스마스 특별 할인 이벤트 🎄"
+          value={form.overlayText}
+          onChange={e => setForm({ ...form, overlayText: e.target.value })}
+        />
+      </div>
+
+      {/* 오버레이 위치 */}
+      <div className="mb-3">
+        <label className="form-label">오버레이 위치</label>
+        <select
+          className="form-select"
+          value={form.overlayPosition}
+          onChange={e => setForm({ ...form, overlayPosition: e.target.value })}
+        >
+          <option value="auto">자동 배치 (알아서 해당)</option>
+          <option value="top-left">상단 왼쪽</option>
+          <option value="top-center">상단 중앙</option>
+          <option value="top-right">상단 오른쪽</option>
+          <option value="middle-left">가운데 왼쪽</option>
+          <option value="middle-center">가운데 중앙</option>
+          <option value="middle-right">가운데 오른쪽</option>
+          <option value="bottom-left">하단 왼쪽</option>
+          <option value="bottom-center">하단 중앙</option>
+          <option value="bottom-right">하단 오른쪽</option>
+        </select>
+      </div>
+
+      {/* 오버레이 설명 */}
+      <div className="mb-3">
+        <label className="form-label">오버레이 텍스트 설명 (선택)</label>
+        <textarea
+          className="form-control"
+          placeholder="예: 굵은 글씨, 빨간색, 제품 위에 배치"
+          value={form.overlayDescription}
+          onChange={e => setForm({ ...form, overlayDescription: e.target.value })}
         />
       </div>
 
