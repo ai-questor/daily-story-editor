@@ -6,6 +6,13 @@ import Step1Text from "../components/Step1Text";
 import Step2Banner from "../components/Step2Banner";
 import Step3Upload from "../components/Step3Upload";
 
+type BannerForm = {
+  product: File | null;
+  person: File | null;
+  background: File | null;
+  prompt: string;
+};
+
 export default function App() {
   const [step, setStep] = useState(1);
   const [menu, setMenu] = useState("");
@@ -16,10 +23,17 @@ export default function App() {
   const [bannedWords, setBannedWords] = useState("");
 
   const [result, setResult] = useState<GenerateResult | null>(null);
-  const [productImage, setProductImage] = useState<File | null>(null);
   const [bannerImage, setBannerImage] = useState<string | null>(null);
   const [selectedCaption, setSelectedCaption] = useState<string>("");
-  const [backgroundPrompt, setBackgroundPrompt] = useState("");
+
+  // ✅ 통합 state
+  const [bannerForm, setBannerForm] = useState<BannerForm>({
+    product: null,
+    person: null,
+    background: null,
+    prompt: "",
+  });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -49,7 +63,7 @@ export default function App() {
   };
 
   const handleGenerateBanner = async () => {
-    if (!productImage) {
+    if (!bannerForm.product) {
       setError("제품 이미지를 업로드해주세요.");
       return;
     }
@@ -57,7 +71,10 @@ export default function App() {
     setError("");
     try {
       const formData = new FormData();
-      formData.append("file", productImage);
+      formData.append("file_product", bannerForm.product);
+      if (bannerForm.person) formData.append("file_person", bannerForm.person);
+      if (bannerForm.background) formData.append("file_background", bannerForm.background);
+
       formData.append("menu", menu);
       formData.append("context", context);
       formData.append("tone", tone);
@@ -65,9 +82,7 @@ export default function App() {
       formData.append("required_words", requiredWords);
       formData.append("banned_words", bannedWords);
       formData.append("text_overlay", `${menu} - 오늘의 추천 메뉴`);
-
-      // ✅ 배경 프롬프트 추가
-      formData.append("background_prompt", backgroundPrompt);
+      formData.append("background_prompt", bannerForm.prompt);
 
       const data = await generateBanner(formData);
       setBannerImage(`data:image/png;base64,${data.image_base64}`);
@@ -159,12 +174,10 @@ export default function App() {
       {step === 2 && (
         <Step2Banner
           result={result}
-          productImage={productImage}
-          setProductImage={setProductImage}
+          form={bannerForm}
+          setForm={setBannerForm}
           loading={loading}
           onSubmit={handleGenerateBanner}
-          backgroundPrompt={backgroundPrompt}
-          setBackgroundPrompt={setBackgroundPrompt}
         />
       )}
 

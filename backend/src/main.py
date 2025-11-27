@@ -23,22 +23,22 @@ app.add_middleware(
 
 @app.post("/api/generate", response_model=GenerateResult)
 async def generate(payload: GeneratePayload):
-    try:
-        result = generate_text(payload)
-        return result
-    except Exception as e:
-        print(e)
-        # 임시 Mock 데이터
-        # return GenerateResult(
-        #     captions=[
-        #         "서울의 맛, 차가운 김치가 김치페스티벌에서 여러분을 기다립니다. 프리미엄 품질로 완성된 우리의 김치는 한입에 담긴 깊은 풍미로 여러분의 미각을 사로잡을 것입니다. 특별한 하루, 특별한 맛을 경험해보세요.",
-        #         "김치의 새로운 차원을 만나보세요. 서울의 차가운 김치, 그 깊은 맛과 신선함은 오직 김치페스티벌에서만 느낄 수 있습니다. 프리미엄 김치로 여러분의 식탁을 더욱 풍성하게 만들어보세요.",
-        #         "서울의 전통을 현대적으로 재해석한 차가운 김치! 김치페스티벌에서 최고의 맛을 경험하고, 서울의 자부심을 느껴보세요. 여러분의 입맛을 사로잡을 준비가 되어 있습니다."
-        #     ],
-        #     one_liner="프리미엄 차가운 김치, 서울의 맛을 담다!",
-        #     hashtags=["#서울김치", "#차가운김치", "#김치페스티벌", "#프리미엄맛", "#전통과현대"]
-        # )
-        # raise HTTPException(status_code=500, detail=str(e))
+    # try:
+    #     result = generate_text(payload)
+    #     return result
+    # except Exception as e:
+    #     print(e)
+    #     raise HTTPException(status_code=500, detail=str(e))
+    # 임시 Mock 데이터
+    return GenerateResult(
+        captions=[
+            "연말의 차가운 바람이 스쳐 가도, 서울의 한 자락에서 만나는 따뜻한 우동은 브랜드의 품격을 더합니다. 원조 레시피의 깊은 육수와 쫄깃한 면발, 신선한 토핑이 어우러져 크리스마스의 여운까지 남기는 프리미엄 한 그릇입니다.",
+            "크리스마스가 다가오는 연말, 서울의 프리미엄 우동으로 하루를 마무리하세요. 원조 맛의 육수에 정교하게 다듬은 면발과 고급 재료의 조합이 겨울밤을 따뜻하게 감싸고 도시의 분위기를 한층 돋굽니다.",
+            "연말연시, 서울의 원조 프리미엄 우동으로 특별한 순간을 채워보세요. 포근한 국물과 신선한 재료의 조합이 다가오는 겨울밤을 따뜻하게 감싸고, 대표 메뉴로서의 브랜드 아이덴티티를 강화합니다."
+        ],
+        one_liner="원조의 깊은 맛, 서울의 크리스마스 분위기를 담은 따뜻한 우동—지금 바로 맛보세요.",
+        hashtags=["#서울", "#원조", "#따뜻한우동", "#크리스마스", "#프리미엄"]
+    )
 
 @app.post("/api/generate-banner", response_model=BannerResult)
 async def generate_banner_api(

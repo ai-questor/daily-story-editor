@@ -134,3 +134,4 @@ export default function Step2Banner({ result, form, setForm, loading, onSubmit }
     </div>
   );
 }
+
