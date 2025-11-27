@@ -19,7 +19,7 @@ export default function App() {
   const [productImage, setProductImage] = useState<File | null>(null);
   const [bannerImage, setBannerImage] = useState<string | null>(null);
   const [selectedCaption, setSelectedCaption] = useState<string>("");
-
+  const [backgroundPrompt, setBackgroundPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -65,6 +65,9 @@ export default function App() {
       formData.append("required_words", requiredWords);
       formData.append("banned_words", bannedWords);
       formData.append("text_overlay", `${menu} - 오늘의 추천 메뉴`);
+
+      // ✅ 배경 프롬프트 추가
+      formData.append("background_prompt", backgroundPrompt);
 
       const data = await generateBanner(formData);
       setBannerImage(`data:image/png;base64,${data.image_base64}`);
@@ -160,6 +163,8 @@ export default function App() {
           setProductImage={setProductImage}
           loading={loading}
           onSubmit={handleGenerateBanner}
+          backgroundPrompt={backgroundPrompt}
+          setBackgroundPrompt={setBackgroundPrompt}
         />
       )}
 

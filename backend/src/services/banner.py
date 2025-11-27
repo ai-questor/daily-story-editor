@@ -76,5 +76,5 @@ def generate_banner(file_bytes: bytes, menu: str, context: str, tone: str,
 def generate_banner_mock(file_bytes: bytes, menu: str, context: str, tone: str,
                     channel: str, required_words: str, banned_words: str,
                     text_overlay: str) -> str:
-    with open("temp/generated.jpg", "rb") as f:
+    with open("temp/generated.png", "rb") as f:
         return base64.b64encode(f.read()).decode("utf-8")
