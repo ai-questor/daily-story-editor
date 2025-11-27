@@ -19,7 +19,7 @@ type Props = {
   onSubmit: () => void;
 };
 
-export default function Step2Banner({ result, form, setForm, loading, onSubmit }: Props) {
+export default function Step3Banner({ result, form, setForm, loading, onSubmit }: Props) {
   return (
     <div className="card p-4 shadow-sm mt-3">
       <h2 className="h5 mb-3">Step 2: 배너 이미지 생성</h2>
