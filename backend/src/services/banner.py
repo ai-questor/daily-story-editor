@@ -93,6 +93,8 @@ def generate_banner(
         f"Ensure high contrast and legibility, commercial quality."
     ).strip()
 
+    print('Final Prompt: ', final_prompt)
+
     print("2) Gemini API call → composite with product/person/background")
 
     # 이미지 배열 구성 (조건부)
