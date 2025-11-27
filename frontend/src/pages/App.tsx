@@ -156,10 +156,10 @@ export default function App() {
           hashtags={hashtags}
           setHashtags={setHashtags}
           onProceed={() => {
-            setEvaluationDone(true); // ✅ 평가 완료 확정
-            setStep(3);
+            setEvaluationDone(true); // 평가 완료 확정
+            setStep(3);              // Step3Banner로 이동
           }}
-          onEdit={() => setStep(1)}
+          goToStep1={() => setStep(1)} // ✅ 단순히 Step1로 이동
         />
       )}
 

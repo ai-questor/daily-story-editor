@@ -5,9 +5,10 @@ from PIL import Image
 from dotenv import load_dotenv
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from models import GeneratePayload, GenerateResult, EvaluationPayload, EvaluationResult, BannerResult
+from models import GeneratePayload, GenerateResult, FactorResult, EvaluationPayload, EvaluationResult, BannerResult
 from services.storage import upload_to_gcs_and_instagram
 from services.text import generate_text
+from services.evaluation import evaluate_content
 #from services.banner import generate_banner
 from services.banner import generate_banner_mock as generate_banner
 
@@ -41,19 +42,31 @@ async def generate(payload: GeneratePayload):
     )
 
 @app.post("/api/evaluate-content", response_model=EvaluationResult)
-async def evaluate_content(payload: EvaluationPayload):
+async def evaluate_content_api(payload: EvaluationPayload):
     try:
-        # 실제로는 OpenAI, Azure OpenAI 등 LLM 호출 로직을 넣을 수 있음
-        # 여기서는 임시 Mock 데이터 반환
-        score = 8
-        explanation = "문구가 따뜻하고 친근하게 전달됩니다."
-        suggestions = [
-            "해시태그를 조금 더 다양하게 추가해보세요.",
-            "한 줄 광고를 더 간결하게 다듬어도 좋습니다."
-        ]
-        return EvaluationResult(score=score, explanation=explanation, suggestions=suggestions)
+        return evaluate_content(payload)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    # return EvaluationResult(
+    #     overall_score=7,
+    #     factors={
+    #         "engagement": FactorResult(score=6, explanation="질문형 문구가 부족해 댓글 참여 유도가 약합니다."),
+    #         "brand_consistency": FactorResult(score=8, explanation="브랜드의 따뜻한 톤은 잘 반영되었지만 고급스러움은 부족합니다."),
+    #         "emotional_appeal": FactorResult(score=7, explanation="감성적인 단어가 일부 있으나 더 강화할 수 있습니다."),
+    #         "hashtags": FactorResult(score=5, explanation="해시태그가 일반적입니다. 지역/시즌 관련 태그를 추가하세요."),
+    #         "clarity": FactorResult(score=9, explanation="간결하고 직관적입니다."),
+    #     },
+    #     summary="전체적으로 브랜드 톤은 잘 반영되었으나 참여도와 해시태그 전략을 보완하면 더 효과적입니다.",
+    #     recommendations=GenerateResult(
+    #         captions=[
+    #             "오늘만 특별한 혜택, 놓치지 마세요!",
+    #             "따뜻한 겨울, 우리 브랜드와 함께 🌟",
+    #             "지금 바로 주문하고 연말 분위기를 즐겨보세요!"
+    #         ],
+    #         one_liner="연말엔 따뜻한 한 잔, 지금 바로!",
+    #         hashtags=["#연말특집", "#따뜻한한잔", "#오늘만특가", "#겨울감성", "#브랜드이름"]
+    #     )
+    # )
 
 @app.post("/api/generate-banner", response_model=BannerResult)
 async def generate_banner_api(
