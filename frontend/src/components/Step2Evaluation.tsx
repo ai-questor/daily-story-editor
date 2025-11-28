@@ -181,7 +181,7 @@ export default function Step2Evaluation({
             Step1로 돌아가기
         </button>
         <button className="btn btn-success flex-fill" onClick={onProceed}>
-            {!evaluation && '검증 없이 '}이미지 생성 진행하기
+            {!evaluation && '검증 없이 '}다음 단계로 이동
         </button>
         </div>
     </div>

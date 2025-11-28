@@ -4,13 +4,7 @@ type Persona = {
   id: string;
   name: string;
   description: string;
-  weights: {
-    emotion: number;
-    offer: number;
-    cta: number;
-    local: number;
-    trend: number;
-  };
+  weights: { emotion: number; offer: number; cta: number; local: number; trend: number };
 };
 
 const DEFAULT_PERSONAS: Persona[] = [
@@ -29,7 +23,7 @@ const DEFAULT_PERSONAS: Persona[] = [
 interface Props {
   selectedPersonas: string[];
   setSelectedPersonas: (ids: string[]) => void;
-  onEvaluate: () => void;
+  onEvaluate: () => void; // 다음 단계 이동용
 }
 
 export default function Step3PersonaEvaluation({
@@ -45,6 +39,8 @@ export default function Step3PersonaEvaluation({
     description: "",
     weights: { emotion: 5, offer: 5, cta: 5, local: 5, trend: 5 },
   });
+  const [evaluationResults, setEvaluationResults] = useState<string[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const togglePersona = (id: string) => {
     if (selectedPersonas.includes(id)) {
@@ -71,9 +67,31 @@ export default function Step3PersonaEvaluation({
     });
   };
 
-  const renderSlider = (label: string, value: number, onChange: (val: number) => void) => (
+  const handleEvaluate = () => {
+    if (selectedPersonas.length === 0) {
+      setErrorMessage("⚠️ 최소 한 개 이상의 페르소나를 선택해주세요.");
+      return;
+    }
+    setErrorMessage("");
+
+    const results = selectedPersonas.map(id => {
+      const persona = personas.find(p => p.id === id);
+      return `${persona?.name}: 감성 ${persona?.weights.emotion}, 오퍼 ${persona?.weights.offer}, CTA ${persona?.weights.cta}, 로컬 ${persona?.weights.local}, 트렌드 ${persona?.weights.trend}`;
+    });
+
+    setEvaluationResults(results);
+  };
+
+  const renderSlider = (
+    label: string,
+    description: string,
+    value: number,
+    onChange: (val: number) => void
+  ) => (
     <div className="mb-2">
-      <label className="form-label">{label}: {value}</label>
+      <label className="form-label">
+        {label}: {value} <small className="text-muted">({description})</small>
+      </label>
       <input
         type="range"
         min={1}
@@ -107,41 +125,43 @@ export default function Step3PersonaEvaluation({
                       value={editingPersona.description}
                       onChange={(e) => setEditingPersona({ ...editingPersona, description: e.target.value })}
                     />
-                    {renderSlider("감성", editingPersona.weights.emotion, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, emotion: val } }))}
-                    {renderSlider("오퍼", editingPersona.weights.offer, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, offer: val } }))}
-                    {renderSlider("CTA", editingPersona.weights.cta, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, cta: val } }))}
-                    {renderSlider("로컬", editingPersona.weights.local, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, local: val } }))}
-                    {renderSlider("트렌드", editingPersona.weights.trend, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, trend: val } }))}
-                    <button className="btn btn-primary me-2" onClick={handleSaveEdit}>
-                      저장
-                    </button>
-                    <button className="btn btn-secondary" onClick={() => setEditingPersona(null)}>
-                      취소
-                    </button>
+                    {renderSlider("감성", "감정적인 표현 강조", editingPersona.weights.emotion, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, emotion: val } }))}
+                    {renderSlider("오퍼", "할인·혜택 강조", editingPersona.weights.offer, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, offer: val } }))}
+                    {renderSlider("CTA", "행동 유도 문구 강조", editingPersona.weights.cta, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, cta: val } }))}
+                    {renderSlider("로컬", "지역성 강조", editingPersona.weights.local, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, local: val } }))}
+                    {renderSlider("트렌드", "최신 유행 반영", editingPersona.weights.trend, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, trend: val } }))}
+                    <div className="d-flex flex-column gap-2 mt-3">
+                      <button className="btn btn-primary w-100" onClick={handleSaveEdit}>
+                        💾 저장
+                      </button>
+                      <button className="btn btn-secondary w-100" onClick={() => setEditingPersona(null)}>
+                        ❌ 취소
+                      </button>
+                    </div>
                   </>
                 ) : (
                   <>
                     <h5 className="card-title">{p.name}</h5>
                     <p className="card-text">{p.description}</p>
                     <ul className="list-unstyled small text-muted">
-                      <li>감성: {p.weights.emotion}</li>
-                      <li>오퍼: {p.weights.offer}</li>
-                      <li>CTA: {p.weights.cta}</li>
-                      <li>로컬: {p.weights.local}</li>
-                      <li>트렌드: {p.weights.trend}</li>
+                      <li>감성: {p.weights.emotion} (감정적인 표현 강조)</li>
+                      <li>오퍼: {p.weights.offer} (할인·혜택 강조)</li>
+                      <li>CTA: {p.weights.cta} (행동 유도 문구 강조)</li>
+                      <li>로컬: {p.weights.local} (지역성 강조)</li>
+                      <li>트렌드: {p.weights.trend} (최신 유행 반영)</li>
                     </ul>
-                    <div className="d-flex gap-2">
+                    <div className="d-flex flex-column gap-2 mt-2">
                       <button
-                        className={`btn btn-sm ${selectedPersonas.includes(p.id) ? "btn-danger" : "btn-outline-primary"}`}
+                        className={`btn w-100 ${selectedPersonas.includes(p.id) ? "btn-secondary" : "btn-primary"}`}
                         onClick={() => togglePersona(p.id)}
                       >
-                        {selectedPersonas.includes(p.id) ? "선택 해제" : "선택"}
+                        {selectedPersonas.includes(p.id) ? "❌ 선택 해제" : "✅ 선택"}
                       </button>
                       <button
-                        className="btn btn-sm btn-warning"
+                        className="btn btn-secondary w-100"
                         onClick={() => setEditingPersona(p)}
                       >
-                        수정
+                        ✏️ 수정
                       </button>
                     </div>
                   </>
@@ -169,22 +189,43 @@ export default function Step3PersonaEvaluation({
                 value={newPersona.description}
                 onChange={(e) => setNewPersona({ ...newPersona, description: e.target.value })}
               />
-              {renderSlider("감성", newPersona.weights.emotion, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, emotion: val } }))}
-              {renderSlider("오퍼", newPersona.weights.offer, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, offer: val } }))}
-              {renderSlider("CTA", newPersona.weights.cta, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, cta: val } }))}
-              {renderSlider("로컬", newPersona.weights.local, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, local: val } }))}
-              {renderSlider("트렌드", newPersona.weights.trend, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, trend: val } }))}
-              <button className="btn btn-success mt-2" onClick={handleAddPersona}>
-                추가하기
+              {renderSlider("감성", "감정적인 표현 강조", newPersona.weights.emotion, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, emotion: val } }))}
+              {renderSlider("오퍼", "할인·혜택 강조", newPersona.weights.offer, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, offer: val } }))}
+              {renderSlider("CTA", "행동 유도 문구 강조", newPersona.weights.cta, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, cta: val } }))}
+              {renderSlider("로컬", "지역성 강조", newPersona.weights.local, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, local: val } }))}
+              {renderSlider("트렌드", "최신 유행 반영", newPersona.weights.trend, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, trend: val } }))}
+              <button className="btn btn-success w-100 mt-2" onClick={handleAddPersona}>
+                ➕ 추가하기
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <button className="btn btn-primary w-100 mt-3" onClick={onEvaluate}>
+        {/* 평가 버튼 */}
+        <button className="btn btn-primary w-100 mt-3" onClick={handleEvaluate}>
         선택한 페르소나로 평가하기
-      </button>
+        </button>
+
+        {/* 에러 메시지 */}
+        {errorMessage && <div className="alert alert-danger mt-2">{errorMessage}</div>}
+
+        {/* 평가 결과 표시 */}
+        {evaluationResults.length > 0 && (
+        <div className="mt-3">
+            <h5>📊 평가 결과</h5>
+            <ul>
+            {evaluationResults.map((res, idx) => (
+                <li key={idx}>{res}</li>
+            ))}
+            </ul>
+        </div>
+        )}
+
+        {/* 다음 단계 버튼 - 항상 표시, 문구만 조건부 변경 */}
+        <button className="btn btn-success w-100 mt-3" onClick={onEvaluate}>
+        {evaluationResults.length > 0 ? "다음 단계로 이동" : "평가 없이 다음 단계로 이동"}
+        </button>
     </div>
   );
 }

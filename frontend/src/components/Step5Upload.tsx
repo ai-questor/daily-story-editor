@@ -8,7 +8,7 @@ type Props = {
   onSubmit: () => void;
 };
 
-export default function Step4Upload({
+export default function Step5Upload({
   result, bannerImage, selectedCaption, loading, onSubmit,
 }: Props) {
   return (
