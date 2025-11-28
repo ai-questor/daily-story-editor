@@ -19,23 +19,12 @@ type Props = {
   onSubmit: () => void;
 };
 
-export default function Step2Banner({ result, form, setForm, loading, onSubmit }: Props) {
+export default function Step3Banner({ result, form, setForm, loading, onSubmit }: Props) {
   return (
     <div className="card p-4 shadow-sm mt-3">
-      <h2 className="h5 mb-3">Step 2: 배너 이미지 생성</h2>
+      <h2 className="h5 mb-3">Step 3: 배너 이미지 생성</h2>
 
-      {result && (
-        <>
-          <h3 className="h6">생성된 문구</h3>
-          {result.captions.map((c, i) => (
-            <p key={i} className="alert alert-secondary">{c}</p>
-          ))}
-          <p className="fw-bold">{result.one_liner}</p>
-          <p className="text-primary">
-            {result.hashtags.map(tag => `#${tag}`).join(" ")}
-          </p>
-        </>
-      )}
+      {/* ✅ Step2에서 이미 문구를 선택했으므로 여기서는 문구를 다시 보여주지 않음 */}
 
       {/* 배경 프롬프트 선택 */}
       <div className="mb-3">
@@ -181,3 +170,4 @@ export default function Step2Banner({ result, form, setForm, loading, onSubmit }
     </div>
   );
 }
+
