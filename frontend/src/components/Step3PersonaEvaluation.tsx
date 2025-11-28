@@ -71,6 +71,20 @@ export default function Step3PersonaEvaluation({
     });
   };
 
+  const renderSlider = (label: string, value: number, onChange: (val: number) => void) => (
+    <div className="mb-2">
+      <label className="form-label">{label}: {value}</label>
+      <input
+        type="range"
+        min={1}
+        max={10}
+        value={value}
+        className="form-range"
+        onChange={(e) => onChange(Number(e.target.value))}
+      />
+    </div>
+  );
+
   return (
     <div className="card p-4 shadow-sm mt-3">
       <h2 className="h5 mb-3">Step 3: 페르소나 기반 광고문구 평가</h2>
@@ -93,6 +107,11 @@ export default function Step3PersonaEvaluation({
                       value={editingPersona.description}
                       onChange={(e) => setEditingPersona({ ...editingPersona, description: e.target.value })}
                     />
+                    {renderSlider("감성", editingPersona.weights.emotion, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, emotion: val } }))}
+                    {renderSlider("오퍼", editingPersona.weights.offer, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, offer: val } }))}
+                    {renderSlider("CTA", editingPersona.weights.cta, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, cta: val } }))}
+                    {renderSlider("로컬", editingPersona.weights.local, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, local: val } }))}
+                    {renderSlider("트렌드", editingPersona.weights.trend, val => setEditingPersona({ ...editingPersona, weights: { ...editingPersona.weights, trend: val } }))}
                     <button className="btn btn-primary me-2" onClick={handleSaveEdit}>
                       저장
                     </button>
@@ -104,6 +123,13 @@ export default function Step3PersonaEvaluation({
                   <>
                     <h5 className="card-title">{p.name}</h5>
                     <p className="card-text">{p.description}</p>
+                    <ul className="list-unstyled small text-muted">
+                      <li>감성: {p.weights.emotion}</li>
+                      <li>오퍼: {p.weights.offer}</li>
+                      <li>CTA: {p.weights.cta}</li>
+                      <li>로컬: {p.weights.local}</li>
+                      <li>트렌드: {p.weights.trend}</li>
+                    </ul>
                     <div className="d-flex gap-2">
                       <button
                         className={`btn btn-sm ${selectedPersonas.includes(p.id) ? "btn-danger" : "btn-outline-primary"}`}
@@ -124,27 +150,36 @@ export default function Step3PersonaEvaluation({
             </div>
           </div>
         ))}
-      </div>
 
-      {/* 커스텀 페르소나 추가 */}
-      <div className="mt-4">
-        <h3 className="h6">새로운 페르소나 추가</h3>
-        <input
-          type="text"
-          className="form-control mb-2"
-          placeholder="이름 (예: 20대 여성 고객)"
-          value={newPersona.name}
-          onChange={(e) => setNewPersona({ ...newPersona, name: e.target.value })}
-        />
-        <textarea
-          className="form-control mb-2"
-          placeholder="설명 (예: 카페·디저트 선호, SNS 후기 중시)"
-          value={newPersona.description}
-          onChange={(e) => setNewPersona({ ...newPersona, description: e.target.value })}
-        />
-        <button className="btn btn-success" onClick={handleAddPersona}>
-          페르소나 추가
-        </button>
+        {/* 커스텀 페르소나 추가 카드 */}
+        <div className="col-md-6 mb-3">
+          <div className="card border-success">
+            <div className="card-body">
+              <h5 className="card-title">새로운 페르소나 추가</h5>
+              <input
+                type="text"
+                className="form-control mb-2"
+                placeholder="이름 (예: 20대 여성 고객)"
+                value={newPersona.name}
+                onChange={(e) => setNewPersona({ ...newPersona, name: e.target.value })}
+              />
+              <textarea
+                className="form-control mb-2"
+                placeholder="설명 (예: 카페·디저트 선호, SNS 후기 중시)"
+                value={newPersona.description}
+                onChange={(e) => setNewPersona({ ...newPersona, description: e.target.value })}
+              />
+              {renderSlider("감성", newPersona.weights.emotion, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, emotion: val } }))}
+              {renderSlider("오퍼", newPersona.weights.offer, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, offer: val } }))}
+              {renderSlider("CTA", newPersona.weights.cta, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, cta: val } }))}
+              {renderSlider("로컬", newPersona.weights.local, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, local: val } }))}
+              {renderSlider("트렌드", newPersona.weights.trend, val => setNewPersona({ ...newPersona, weights: { ...newPersona.weights, trend: val } }))}
+              <button className="btn btn-success mt-2" onClick={handleAddPersona}>
+                추가하기
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <button className="btn btn-primary w-100 mt-3" onClick={onEvaluate}>
