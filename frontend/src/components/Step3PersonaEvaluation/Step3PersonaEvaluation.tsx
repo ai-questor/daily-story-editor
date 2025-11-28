@@ -5,7 +5,14 @@ import PersonaCard from "./PersonaCard";
 import PersonaForm from "./PersonaForm";
 import EvaluationResult from "./EvaluationResult";
 
-export default function Step3PersonaEvaluation({ selectedPersonas, setSelectedPersonas, onEvaluate }: Props) {
+export default function Step3PersonaEvaluation({
+  selectedPersonas,
+  setSelectedPersonas,
+  caption,
+  oneLiner,
+  hashtags,
+  onEvaluate,
+}: Props) {
   const [personas, setPersonas] = useState<Persona[]>(DEFAULT_PERSONAS);
   const [newPersona, setNewPersona] = useState<Persona>({
     id: "new",
@@ -19,7 +26,7 @@ export default function Step3PersonaEvaluation({ selectedPersonas, setSelectedPe
 
   const togglePersona = (id: string) => {
     if (selectedPersonas.includes(id)) {
-      setSelectedPersonas(selectedPersonas.filter(p => p !== id));
+      setSelectedPersonas(selectedPersonas.filter((p) => p !== id));
     } else {
       setSelectedPersonas([...selectedPersonas, id]);
     }
@@ -27,24 +34,27 @@ export default function Step3PersonaEvaluation({ selectedPersonas, setSelectedPe
 
   const handleAddPersona = () => {
     if (!newPersona.name.trim() || !newPersona.description.trim()) {
-        setErrorMessage("⚠️ 이름과 설명을 모두 입력해주세요.");
-        return;
+      setErrorMessage("⚠️ 이름과 설명을 모두 입력해야 합니다.");
+      return;
     }
-
     setPersonas([...personas, { ...newPersona, id: `custom-${Date.now()}` }]);
     setNewPersona({
-        id: "new",
-        name: "",
-        description: "",
-        weights: { emotion: 5, offer: 5, cta: 5, local: 5, trend: 5 },
+      id: "new",
+      name: "",
+      description: "",
+      weights: { emotion: 5, offer: 5, cta: 5, local: 5, trend: 5 },
     });
-    setErrorMessage(""); // 성공 시 에러 메시지 초기화
+    setErrorMessage("");
   };
 
-
   const handleSaveEdit = (updated: Persona) => {
-    setPersonas(personas.map(p => (p.id === updated.id ? updated : p)));
+    if (!updated.name.trim() || !updated.description.trim()) {
+      setErrorMessage("⚠️ 이름과 설명을 모두 입력해야 합니다.");
+      return;
+    }
+    setPersonas(personas.map((p) => (p.id === updated.id ? updated : p)));
     setEditingId(null);
+    setErrorMessage("");
   };
 
   const handleEvaluate = async () => {
@@ -59,11 +69,11 @@ export default function Step3PersonaEvaluation({ selectedPersonas, setSelectedPe
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          selectedPersonas: personas.filter(p => selectedPersonas.includes(p.id)),
-          caption: "따뜻한 커피 한 잔으로 하루를 시작하세요.",
-          one_liner: "오늘 하루, 당신의 마음을 녹여줄 커피.",
-          hashtags: ["#전주카페", "#따뜻한커피", "#오늘의휴식"]
-        })
+          selectedPersonas: personas.filter((p) => selectedPersonas.includes(p.id)),
+          caption,
+          one_liner: oneLiner,
+          hashtags,
+        }),
       });
 
       if (!response.ok) throw new Error("API 호출 실패");
@@ -78,8 +88,9 @@ export default function Step3PersonaEvaluation({ selectedPersonas, setSelectedPe
     <div className="card p-4 shadow-sm mt-3">
       <h2 className="h5 mb-3">Step 3: 페르소나 기반 광고문구 평가</h2>
 
+      {/* 페르소나 카드들 */}
       <div className="row">
-        {personas.map(p => (
+        {personas.map((p) => (
           <div key={p.id} className="col-md-6 mb-3">
             <PersonaCard
               persona={p}
@@ -94,7 +105,7 @@ export default function Step3PersonaEvaluation({ selectedPersonas, setSelectedPe
         ))}
 
         <div className="col-md-6 mb-3">
-          <PersonaForm newPersona={newPersona} setNewPersona={setNewPersona} onAdd={handleAddPersona} />
+          <PersonaForm newPersona={newPersona} setNewPersona={setNewPersona} onAdd={handleAddPersona} errorMessage={errorMessage} />
         </div>
       </div>
 

@@ -166,9 +166,9 @@ export default function App() {
         <Step3PersonaEvaluation
           selectedPersonas={selectedPersonas}
           setSelectedPersonas={setSelectedPersonas}
-          caption={selectedCaption}   // 전달
-          oneLiner={oneLiner}         // 전달
-          hashtags={hashtags}         // 전달
+          caption={selectedCaption}
+          oneLiner={oneLiner}
+          hashtags={hashtags}
           onEvaluate={() => {
             setEvaluationDone(true);
             setStep(4);
