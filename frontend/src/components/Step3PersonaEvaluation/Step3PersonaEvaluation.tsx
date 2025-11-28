@@ -3,6 +3,7 @@ import { DEFAULT_PERSONAS } from "./constants";
 import type { Persona, Props, PersonaEvaluationResponse } from "./types";
 import PersonaCard from "./PersonaCard";
 import PersonaForm from "./PersonaForm";
+import EvaluationResult from "./EvaluationResult";
 
 export default function Step3PersonaEvaluation({ selectedPersonas, setSelectedPersonas, onEvaluate }: Props) {
   const [personas, setPersonas] = useState<Persona[]>(DEFAULT_PERSONAS);
@@ -25,15 +26,21 @@ export default function Step3PersonaEvaluation({ selectedPersonas, setSelectedPe
   };
 
   const handleAddPersona = () => {
-    if (!newPersona.name) return;
+    if (!newPersona.name.trim() || !newPersona.description.trim()) {
+        setErrorMessage("⚠️ 이름과 설명을 모두 입력해주세요.");
+        return;
+    }
+
     setPersonas([...personas, { ...newPersona, id: `custom-${Date.now()}` }]);
     setNewPersona({
-      id: "new",
-      name: "",
-      description: "",
-      weights: { emotion: 5, offer: 5, cta: 5, local: 5, trend: 5 },
+        id: "new",
+        name: "",
+        description: "",
+        weights: { emotion: 5, offer: 5, cta: 5, local: 5, trend: 5 },
     });
+    setErrorMessage(""); // 성공 시 에러 메시지 초기화
   };
+
 
   const handleSaveEdit = (updated: Persona) => {
     setPersonas(personas.map(p => (p.id === updated.id ? updated : p)));
@@ -97,53 +104,7 @@ export default function Step3PersonaEvaluation({ selectedPersonas, setSelectedPe
 
       {errorMessage && <div className="alert alert-danger mt-2">{errorMessage}</div>}
 
-      {evaluation && (
-        <div className="mt-3">
-          <h5>📊 평가 결과</h5>
-          {evaluation.results.map((res) => (
-            <div key={res.personaId} className="card mb-3">
-              <div className="card-body">
-                <h6>{res.personaName} ({res.overall_score}점)</h6>
-                <p>{res.feedback}</p>
-                <ul>
-                  <li>캡션: {res.captionFeedback.score}점 - {res.captionFeedback.comment}</li>
-                  <li>원라이너: {res.oneLinerFeedback.score}점 - {res.oneLinerFeedback.comment}</li>
-                  <li>해시태그: {res.hashtagsFeedback.score}점 - {res.hashtagsFeedback.comment}</li>
-                </ul>
-                <table className="table table-sm">
-                  <thead>
-                    <tr>
-                      <th>요소</th>
-                      <th>점수</th>
-                      <th>근거 설명</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(res.breakdown).map(([factor, item]) => (
-                      <tr key={factor}>
-                        <td>{factor}</td>
-                        <td>{item.score}</td>
-                        <td>{item.reason}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ))}
-
-          <div className="alert alert-info">
-            <h6>📌 Summary</h6>
-            <p>평균 점수: {evaluation.summary.averageScore}</p>
-            <p>최적 페르소나: {evaluation.summary.bestPersonaId}</p>
-            <ul>
-              {evaluation.summary.notes.map((note, idx) => (
-                <li key={idx}>{note}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
+      {evaluation && <EvaluationResult evaluation={evaluation} />}
 
       <button className="btn btn-success w-100 mt-3" onClick={onEvaluate}>
         {evaluation ? "다음 단계로 이동" : "평가 없이 다음 단계로 이동"}

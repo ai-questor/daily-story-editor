@@ -19,6 +19,14 @@ export default function PersonaCard({ persona, selected, editing, onToggle, onEd
     if (editing) setDraft(persona);
   }, [editing, persona]);
 
+  const handleSave = () => {
+    if (!draft.name.trim() || !draft.description.trim()) {
+      alert("⚠️ 이름과 설명을 모두 입력해야 저장할 수 있습니다.");
+      return;
+    }
+    onSave(draft);
+  };
+
   if (editing) {
     return (
       <div className="card border-warning">
@@ -41,7 +49,7 @@ export default function PersonaCard({ persona, selected, editing, onToggle, onEd
           <SliderInput label="트렌드" description="최신 유행 반영" value={draft.weights.trend} onChange={(val) => setDraft({ ...draft, weights: { ...draft.weights, trend: val } })} />
 
           <div className="d-flex flex-column gap-2 mt-3">
-            <button className="btn btn-primary w-100" onClick={() => onSave(draft)}>💾 저장</button>
+            <button className="btn btn-primary w-100" onClick={() => handleSave()}>💾 저장</button>
             <button className="btn btn-secondary w-100" onClick={onCancel}>❌ 취소</button>
           </div>
         </div>
