@@ -118,7 +118,7 @@ export default function App() {
         checkpoints={{
           1: !!result,
           2: evaluationDone,
-          3: selectedPersonas.length >= 0,
+          3: selectedPersonas.length > 0,
           4: !!bannerImage,
           5: false,
         }}
@@ -155,8 +155,8 @@ export default function App() {
           hashtags={hashtags}
           setHashtags={setHashtags}
           onProceed={() => {
-            setEvaluationDone(true); // 평가 완료 표시
-            setStep(3);              // Step3PersonaEvaluation으로 이동
+            setEvaluationDone(true);
+            setStep(3);
           }}
           goToStep1={() => setStep(1)}
         />
@@ -166,7 +166,13 @@ export default function App() {
         <Step3PersonaEvaluation
           selectedPersonas={selectedPersonas}
           setSelectedPersonas={setSelectedPersonas}
-          onEvaluate={() => setStep(4)}
+          caption={selectedCaption}   // 전달
+          oneLiner={oneLiner}         // 전달
+          hashtags={hashtags}         // 전달
+          onEvaluate={() => {
+            setEvaluationDone(true);
+            setStep(4);
+          }}
         />
       )}
 
@@ -192,4 +198,3 @@ export default function App() {
     </div>
   );
 }
-

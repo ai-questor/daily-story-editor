@@ -29,5 +29,39 @@ class EvaluationPayload(BaseModel):
     one_liner: str | None = None
     hashtags: list[str] = []
 
+class Persona(BaseModel):
+    id: str
+    name: str
+    description: str
+    weights: dict[str, int]  # emotion, offer, cta, local, trend
+
+class PersonaEvaluationFeedback(BaseModel):
+    score: int
+    comment: str
+
+class PersonaBreakdownItem(BaseModel):
+    score: int
+    reason: str
+
+class PersonaEvaluationResult(BaseModel):
+    personaId: str
+    personaName: str
+    overall_score: int
+    feedback: str
+    captionFeedback: PersonaEvaluationFeedback
+    oneLinerFeedback: PersonaEvaluationFeedback
+    hashtagsFeedback: PersonaEvaluationFeedback
+    breakdown: dict[str, PersonaBreakdownItem]
+
+class PersonaEvaluationPayload(BaseModel):
+    selectedPersonas: list[Persona]
+    caption: str
+    one_liner: str
+    hashtags: list[str]
+
+class PersonaEvaluationResponse(BaseModel):
+    results: list[PersonaEvaluationResult]
+    summary: dict
+
 class BannerResult(BaseModel):
     image_base64: str  # 최종 광고 배너 이미지 (base64 인코딩)
