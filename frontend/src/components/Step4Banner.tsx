@@ -22,7 +22,7 @@ type Props = {
 export default function Step4Banner({ result, form, setForm, loading, onSubmit }: Props) {
   return (
     <div className="card p-4 shadow-sm mt-3">
-      <h2 className="h5 mb-3">Step 3: 배너 이미지 생성</h2>
+      <h2 className="h5 mb-3">Step 4: 배너 이미지 생성</h2>
 
       {/* 배경 프롬프트 선택 */}
       <div className="mb-3">
