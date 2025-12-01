@@ -3,8 +3,9 @@ import type { GenerateResult } from "../types";
 import StepWizard from "../components/StepWizard";
 import Step1Text from "../components/Step1Text";
 import Step2Evaluation from "../components/Step2Evaluation";
-import Step3Banner from "../components/Step3Banner";
-import Step4Upload from "../components/Step4Upload";
+import Step3PersonaEvaluation from "../components/Step3PersonaEvaluation";
+import Step4Banner from "../components/Step4Banner";
+import Step5Upload from "../components/Step5Upload";
 import { useTextGeneration } from "../hooks/useTextGeneration";
 import { useBannerGeneration } from "../hooks/useBannerGeneration";
 import { useInstagramUpload } from "../hooks/useInstagramUpload";
@@ -32,7 +33,6 @@ export default function App() {
   const [bannerImage, setBannerImage] = useState<string | null>(null);
   const [evaluationDone, setEvaluationDone] = useState<boolean>(false);
 
-  // ✅ 캡션/한줄문구/해시태그 상태 관리
   const [selectedCaption, setSelectedCaption] = useState<string>("");
   const [oneLiner, setOneLiner] = useState<string>("");
   const [hashtags, setHashtags] = useState<string[]>([]);
@@ -47,12 +47,13 @@ export default function App() {
     overlayDescription: "",
   });
 
-  // ✅ 훅 사용
+  const [selectedPersonas, setSelectedPersonas] = useState<string[]>([]);
+
   const { generate: generateText, loading: textLoading, error: textError } = useTextGeneration();
   const { generate: generateBanner, loading: bannerLoading, error: bannerError } = useBannerGeneration();
   const { upload: uploadInstagram, loading: uploadLoading, error: uploadError } = useInstagramUpload();
 
-  const goNext = () => setStep(prev => Math.min(prev + 1, 4));
+  const goNext = () => setStep(prev => Math.min(prev + 1, 5));
   const goPrev = () => setStep(prev => Math.max(prev - 1, 1));
 
   const handleGenerateText = async () => {
@@ -66,10 +67,7 @@ export default function App() {
     });
     if (data) {
       setResult(data);
-      // 기본 선택값 초기화
-      if (data.captions.length > 0) {
-        setSelectedCaption(data.captions[0].trim());
-      }
+      if (data.captions.length > 0) setSelectedCaption(data.captions[0].trim());
       setOneLiner(data.one_liner);
       setHashtags(data.hashtags ?? []);
       setStep(2);
@@ -88,11 +86,10 @@ export default function App() {
     if (bannerForm.overlayDescription) {
       formData.append("overlay_description", bannerForm.overlayDescription);
     }
-
     const image = await generateBanner(formData);
     if (image) {
       setBannerImage(image);
-      setStep(4);
+      setStep(5);
     }
   };
 
@@ -104,7 +101,8 @@ export default function App() {
     if (success) alert("Instagram 업로드 성공!");
   };
 
-  const progressPercent = (step / 4) * 100;
+  const totalSteps = 5;
+  const progressPercent = (step / totalSteps) * 100;
   const error = textError || bannerError || uploadError;
 
   return (
@@ -113,15 +111,16 @@ export default function App() {
 
       <StepWizard
         step={step}
-        total={4}
+        total={totalSteps}
         progressPercent={progressPercent}
         onPrev={goPrev}
         onNext={goNext}
         checkpoints={{
           1: !!result,
-          2: evaluationDone,   // ✅ AI 평가 결과가 있어야 완료
-          3: !!bannerImage,
-          4: false,
+          2: evaluationDone,
+          3: selectedPersonas.length > 0,
+          4: !!bannerImage,
+          5: false,
         }}
       />
 
@@ -156,15 +155,29 @@ export default function App() {
           hashtags={hashtags}
           setHashtags={setHashtags}
           onProceed={() => {
-            setEvaluationDone(true); // 평가 완료 확정
-            setStep(3);              // Step3Banner로 이동
+            setEvaluationDone(true);
+            setStep(3);
           }}
-          goToStep1={() => setStep(1)} // ✅ 단순히 Step1로 이동
+          goToStep1={() => setStep(1)}
         />
       )}
 
       {step === 3 && (
-        <Step3Banner
+        <Step3PersonaEvaluation
+          selectedPersonas={selectedPersonas}
+          setSelectedPersonas={setSelectedPersonas}
+          caption={selectedCaption}
+          oneLiner={oneLiner}
+          hashtags={hashtags}
+          onEvaluate={() => {
+            setEvaluationDone(true);
+            setStep(4);
+          }}
+        />
+      )}
+
+      {step === 4 && (
+        <Step4Banner
           result={result}
           form={bannerForm}
           setForm={setBannerForm}
@@ -173,12 +186,11 @@ export default function App() {
         />
       )}
 
-      {step === 4 && (
-        <Step4Upload
+      {step === 5 && (
+        <Step5Upload
           result={result}
           bannerImage={bannerImage}
           selectedCaption={selectedCaption}
-          setSelectedCaption={setSelectedCaption}
           loading={uploadLoading}
           onSubmit={handleUploadInstagram}
         />

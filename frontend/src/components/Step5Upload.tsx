@@ -8,12 +8,12 @@ type Props = {
   onSubmit: () => void;
 };
 
-export default function Step4Upload({
+export default function Step5Upload({
   result, bannerImage, selectedCaption, loading, onSubmit,
 }: Props) {
   return (
     <div className="card p-4 shadow-sm mt-3">
-      <h2 className="h5 mb-3">Step 4: 인스타그램 업로드</h2>
+      <h2 className="h5 mb-3">Step 5: 인스타그램 업로드</h2>
 
       {result && (
         <>

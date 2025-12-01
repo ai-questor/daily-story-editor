@@ -6,11 +6,14 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from models import GeneratePayload, GenerateResult, FactorResult, EvaluationPayload, EvaluationResult, BannerResult
+from models import PersonaEvaluationPayload, PersonaEvaluationResponse
 from services.storage import upload_to_gcs_and_instagram
 from services.text import generate_text
 from services.evaluation import evaluate_content
+from services.persona_evaluation import evaluate_personas
 from services.banner import generate_banner
 #from services.banner import generate_banner_mock as generate_banner
+
 
 load_dotenv()
 app = FastAPI()
@@ -67,6 +70,14 @@ async def evaluate_content_api(payload: EvaluationPayload):
     #         hashtags=["#연말특집", "#따뜻한한잔", "#오늘만특가", "#겨울감성", "#브랜드이름"]
     #     )
     # )
+
+@app.post("/api/evaluate-personas", response_model=PersonaEvaluationResponse)
+async def evaluate_personas_api(payload: PersonaEvaluationPayload):
+    try:
+        return evaluate_personas(payload)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/api/generate-banner", response_model=BannerResult)
 async def generate_banner_api(
