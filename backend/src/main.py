@@ -11,8 +11,8 @@ from services.storage import upload_to_gcs_and_instagram
 from services.text import generate_text
 from services.evaluation import evaluate_content
 from services.persona_evaluation import evaluate_personas
-#from services.banner import generate_banner
-from services.banner import generate_banner_mock as generate_banner
+from services.banner import generate_banner
+#from services.banner import generate_banner_mock as generate_banner
 
 
 load_dotenv()
