@@ -1,40 +1,121 @@
 # services/persona_evaluation.py
-from models import PersonaEvaluationPayload, PersonaEvaluationResponse, PersonaEvaluationResult, PersonaEvaluationFeedback, PersonaBreakdownItem
+import json
+import sys
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from models import (
+    PersonaEvaluationPayload,
+    PersonaEvaluationResponse,
+    PersonaEvaluationResult,
+    PersonaEvaluationFeedback,
+    PersonaBreakdownItem,
+)
+from config import OPENAI_API_KEY
+
+# 싱글턴 LLM 객체
+llm = ChatOpenAI(model="gpt-5-nano", api_key=OPENAI_API_KEY)
 
 def evaluate_personas(payload: PersonaEvaluationPayload) -> PersonaEvaluationResponse:
-    results = []
+    # 모든 페르소나를 한 번에 프롬프트에 포함
+    personas_text = "\n".join([
+        f"- {p.id}: {p.name} ({p.description}), weights={p.weights}"
+        for p in payload.selectedPersonas
+    ])
 
-    for p in payload.selectedPersonas:
-        # 간단한 점수 계산 로직 (Mock)
-        caption_score = 78
-        one_liner_score = 85
-        hashtags_score = 70
-        overall = round((caption_score + one_liner_score + hashtags_score) / 3)
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", "너는 인스타그램 마케팅 전문가이며, 여러 페르소나 관점에서 광고 문구를 평가한다."),
+        ("user", """선택된 페르소나들:
+{personas_text}
 
-        breakdown = {
-            "emotion": PersonaBreakdownItem(score=82, reason="감성 키워드가 포함되어 있음"),
-            "offer": PersonaBreakdownItem(score=74, reason="직접적인 할인 키워드는 부족"),
-            "cta": PersonaBreakdownItem(score=68, reason="즉각적 행동 유도 문구가 부족"),
-            "local": PersonaBreakdownItem(score=40, reason="지역성 키워드가 적음"),
-            "trend": PersonaBreakdownItem(score=88, reason="SNS/트렌드 키워드가 잘 반영됨"),
-        }
+캡션: {caption}
+원라이너: {one_liner}
+해시태그: {hashtags}
 
-        result = PersonaEvaluationResult(
-            personaId=p.id,
-            personaName=p.name,
-            overall_score=overall,
-            feedback=f"{p.name} 페르소나와의 적합도는 {overall}점입니다.",
-            captionFeedback=PersonaEvaluationFeedback(score=caption_score, comment="캡션의 감성 표현이 강점입니다."),
-            oneLinerFeedback=PersonaEvaluationFeedback(score=one_liner_score, comment="원라이너의 감성 임팩트가 좋습니다."),
-            hashtagsFeedback=PersonaEvaluationFeedback(score=hashtags_score, comment="해시태그가 트렌드와 SNS 공유 맥락에 적합합니다."),
-            breakdown=breakdown
-        )
-        results.append(result)
+각 페르소나별로 아래 JSON 형식의 평가 결과를 배열로 반환해줘:
 
-    summary = {
-        "bestPersonaId": results[0].personaId if results else None,
-        "averageScore": round(sum(r.overall_score for r in results) / len(results)) if results else 0,
-        "notes": ["CTA와 지역성 요소를 보강하면 더 완벽한 결과를 얻을 수 있습니다."]
+{{
+  "results": [
+    {{
+      "personaId": "<string>",
+      "personaName": "<string>",
+      "overall_score": <int>,
+      "feedback": "<string>",
+      "captionFeedback": {{ "score": <int>, "comment": "<string>" }},
+      "oneLinerFeedback": {{ "score": <int>, "comment": "<string>" }},
+      "hashtagsFeedback": {{ "score": <int>, "comment": "<string>" }},
+      "breakdown": {{
+        "emotion": {{ "score": <int>, "reason": "<string>" }},
+        "offer": {{ "score": <int>, "reason": "<string>" }},
+        "cta": {{ "score": <int>, "reason": "<string>" }},
+        "local": {{ "score": <int>, "reason": "<string>" }},
+        "trend": {{ "score": <int>, "reason": "<string>" }}
+      }}
+    }}
+  ],
+  "summary": {{
+    "bestPersonaId": "<string>",
+    "averageScore": <int>,
+    "notes": ["<string>", "<string>", ...]
+  }}
+}}
+""")
+    ])
+
+    variables = {
+        "personas_text": personas_text,
+        "caption": payload.caption,
+        "one_liner": payload.one_liner or "",
+        "hashtags": ", ".join(payload.hashtags or []),
     }
 
-    return PersonaEvaluationResponse(results=results, summary=summary)
+    try:
+        # ✅ 디버그 출력
+        print("=== Prompt input_variables ===", file=sys.stderr)
+        print(prompt.input_variables, file=sys.stderr)
+
+        messages = prompt.format_messages(**variables)
+        print("=== Rendered messages ===", file=sys.stderr)
+        for i, m in enumerate(messages):
+            print(f"[{i}] role={getattr(m, 'type', 'unk')} content:\n{m.content}\n", file=sys.stderr)
+
+        # LLM 단일 호출
+        response = (prompt | llm).invoke(variables)
+        print("=== Raw LLM Response ===", file=sys.stderr)
+        print(response.content, file=sys.stderr)
+
+        data = json.loads(response.content.strip())
+
+        results = []
+        for r in data.get("results", []):
+            results.append(
+                PersonaEvaluationResult(
+                    personaId=r.get("personaId", ""),
+                    personaName=r.get("personaName", ""),
+                    overall_score=r.get("overall_score", 0),
+                    feedback=r.get("feedback", ""),
+                    captionFeedback=PersonaEvaluationFeedback(
+                        score=r.get("captionFeedback", {}).get("score", 0),
+                        comment=r.get("captionFeedback", {}).get("comment", "")
+                    ),
+                    oneLinerFeedback=PersonaEvaluationFeedback(
+                        score=r.get("oneLinerFeedback", {}).get("score", 0),
+                        comment=r.get("oneLinerFeedback", {}).get("comment", "")
+                    ),
+                    hashtagsFeedback=PersonaEvaluationFeedback(
+                        score=r.get("hashtagsFeedback", {}).get("score", 0),
+                        comment=r.get("hashtagsFeedback", {}).get("comment", "")
+                    ),
+                    breakdown={
+                        k: PersonaBreakdownItem(score=v.get("score", 0), reason=v.get("reason", ""))
+                        for k, v in r.get("breakdown", {}).items()
+                    }
+                )
+            )
+
+        summary = data.get("summary", {})
+
+        return PersonaEvaluationResponse(results=results, summary=summary)
+
+    except Exception as e:
+        print(f"❌ LLM 평가 중 오류 발생: {str(e)}", file=sys.stderr)
+        raise e

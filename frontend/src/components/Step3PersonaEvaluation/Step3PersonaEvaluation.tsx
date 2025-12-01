@@ -23,6 +23,7 @@ export default function Step3PersonaEvaluation({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [evaluation, setEvaluation] = useState<PersonaEvaluationResponse | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false); // ✅ 로딩 상태 추가
 
   const togglePersona = (id: string) => {
     if (selectedPersonas.includes(id)) {
@@ -63,6 +64,7 @@ export default function Step3PersonaEvaluation({
       return;
     }
     setErrorMessage("");
+    setLoading(true); // ✅ 로딩 시작
 
     try {
       const response = await fetch("/api/evaluate-personas", {
@@ -81,6 +83,8 @@ export default function Step3PersonaEvaluation({
       setEvaluation(data);
     } catch (e: any) {
       setErrorMessage(e.message);
+    } finally {
+      setLoading(false); // ✅ 로딩 종료
     }
   };
 
@@ -109,15 +113,31 @@ export default function Step3PersonaEvaluation({
         </div>
       </div>
 
-      <button className="btn btn-primary w-100 mt-3" onClick={handleEvaluate}>
-        선택한 페르소나로 평가하기
+      <button className="btn btn-primary w-100 mt-3" onClick={handleEvaluate} disabled={loading}>
+        {loading ? (
+          <>
+            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            평가 중...
+          </>
+        ) : (
+          "선택한 페르소나로 평가하기"
+        )}
       </button>
 
       {errorMessage && <div className="alert alert-danger mt-2">{errorMessage}</div>}
 
+      {loading && (
+        <div className="text-center mt-3">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-2">잠시만 기다려주세요. 평가를 진행 중입니다...</p>
+        </div>
+      )}
+
       {evaluation && <EvaluationResult evaluation={evaluation} />}
 
-      <button className="btn btn-success w-100 mt-3" onClick={onEvaluate}>
+      <button className="btn btn-success w-100 mt-3" onClick={onEvaluate} disabled={loading}>
         {evaluation ? "다음 단계로 이동" : "평가 없이 다음 단계로 이동"}
       </button>
     </div>

@@ -58,9 +58,18 @@ export default function PersonaCard({ persona, selected, editing, onToggle, onEd
   }
 
   return (
-    <div className={`card ${selected ? "border-primary" : ""}`}>
+    <div
+      className={`card ${selected ? "border-primary bg-light shadow-lg" : ""}`}
+      style={{
+        transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+        transform: selected ? "scale(1.05)" : "scale(1)",
+      }}
+    >
       <div className="card-body">
-        <h5 className="card-title">{persona.name}</h5>
+        <h5 className="card-title d-flex align-items-center">
+          {persona.name}
+          {selected && <span className="ms-2 text-primary">✅</span>}
+        </h5>
         <p className="card-text">{persona.description}</p>
         <ul className="list-unstyled small text-muted">
           <li>감성: {persona.weights.emotion}</li>
