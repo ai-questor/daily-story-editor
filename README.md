@@ -40,6 +40,14 @@
 
 ---
 
+## 🎥 데모 영상
+
+아래 이미지를 클릭하면 실행 화면 영상을 볼 수 있습니다.
+
+[![App Demo](app_screenshot.png)](app_screenrecording.mp4)
+
+---
+
 ## 🛠️ 기술 스택
 - **Frontend**: React, TypeScript, Bootstrap
 - **Backend**: FastAPI, LangChain, Stable Diffusion 2, SAM, OpenAI API
