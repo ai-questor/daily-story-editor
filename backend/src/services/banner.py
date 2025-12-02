@@ -126,5 +126,5 @@ def generate_banner_mock(
     overlay_position: str,
     overlay_description: str,
 ) -> str:
-    with open("temp/generated-20251127-134459.png", "rb") as f:
+    with open("temp/generated-20251201-140502.png", "rb") as f:
         return base64.b64encode(f.read()).decode("utf-8")
