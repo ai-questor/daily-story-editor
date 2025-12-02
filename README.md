@@ -236,3 +236,6 @@ curl -X POST /api/generate \
 
 3. **개인 일지**
    - [개인 일지](https://stormy-bamboo-cb9.notion.site/2a1d8eb5efbb80b38d28cf9b6bc1e3e6)
+
+4. **프로젝트 관리**
+   - [프로젝트 관련 문서들](https://www.notion.so/2b0d8eb5efbb80fb9364df52012eeae1)
