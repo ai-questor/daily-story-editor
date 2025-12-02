@@ -77,15 +77,12 @@ uv pip install xformers
 # 나노 바나나 Pro 설치
 uv add google-genai
 
-
 uv sync
 ```
 
 ### 서버 실행
 ```bash
-cd src
 PYTHONPATH=./src uv run uvicorn main:app --reload --host 0.0.0.0 --port 8080
-
 ```
 
 ### 로컬 테스트용 
