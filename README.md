@@ -239,8 +239,9 @@ curl -X POST /api/generate \
 1. **Github 리포지토리 주소**
    - [리포지토리 바로가기](https://github.com/ai-questor/daily-story-editor)
 
-2. **보고서 PDF 파일**
-   - [최종 보고서 다운로드](https://github.com/ai-questor/daily-story-editor/blob/main/final_report.pdf)
+2. **보고서 파일**
+   - [최종 보고서 PDF 다운로드](https://github.com/ai-questor/daily-story-editor/blob/main/final_report.pdf)
+   - [최종 보고서 영상 다운로드](https://github.com/ai-questor/daily-story-editor/blob/main/final_report.mp4)
 
 3. **개인 일지**
    - [개인 일지](https://stormy-bamboo-cb9.notion.site/2a1d8eb5efbb80b38d28cf9b6bc1e3e6)
